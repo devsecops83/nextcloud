@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:10.13-alpine
+    restart: always
+    volumes:
+      - postgres-nextcloud:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: xxxxxxxxxxx
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+  redis:
+    image: redis:latest
+    restart: always
+    environment:
+      REDIS_DATABASES: 1
+    volumes:
+      - redis-nextcloud:/var/lib/redis
+  app:
+    image: nextcloud
+    restart: always
+    ports:
+      - 8091:80
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - nextcloud:/var/www/html
+      - nextcloud-app:/var/www/html/custom_apps
+      - type: bind
+        source: /home/rhea/owncloud/
+        target: /var/www/html/data/
+      - type: bind
+        source: /home/rhea/next-cloud/config
+        target: /var/www/html/config/
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: xxxxxxxx 
+      POSTGRES_USER: nextcloud
+      POSTGRES_DB: nextcloud
+      NEXTCLOUD_ADMIN_USER: admin
+      NEXTCLOUD_ADMIN_PASSWORD: xxxxxxxxxxx
+      REDIS_HOST: redis
+      NEXTCLOUD_TRUSTED_DOMAINS: cloud.test.com 10.10.120.10
+volumes:
+  postgres-nextcloud:
+  redis-nextcloud:
+  nextcloud:
+  nextcloud-app:
+  nextcloud-config:
